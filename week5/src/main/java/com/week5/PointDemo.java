@@ -56,7 +56,7 @@ class Point {
     // method가 호출되는 instance(this)와 other instance 사이의 거리
     public double distance(Point other) {
         double sqDist = Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2);
-        return Math.pow(sqDist, 0.5);
+        return Math.pow(sqDist, 0.5); // Math.sqrt(sqDist);
     }
 
     public Point midPoint(Point other) {
