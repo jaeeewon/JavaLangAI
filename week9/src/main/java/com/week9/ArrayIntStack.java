@@ -23,7 +23,7 @@ public class ArrayIntStack {
 
     public int pop() {
         // 아무것도 없을 때
-        if (this.elements.length == 0) {
+        if (this.top == 0) {
             throw new IllegalAccessError();
         }
 
@@ -33,7 +33,7 @@ public class ArrayIntStack {
 
     public int peek() {
         // 아무것도 없을 때
-        if (this.elements.length == 0) {
+        if (this.top == 0) {
             throw new IllegalAccessError();
         }
         return this.elements[this.top - 1];
@@ -52,3 +52,4 @@ public class ArrayIntStack {
     }
 }
 // Q. 아무것도 없을 때 this.elements.length 대신 this.top으로 해야하는 게 아닌지?
+// A. 맞음. this.top으로 수정해야 함
