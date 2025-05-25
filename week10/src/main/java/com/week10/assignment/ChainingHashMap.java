@@ -37,6 +37,7 @@ class ChainingHashMap<K, V> implements SimpleMap<K, V> {
     }
 
     @SuppressWarnings("unchecked")
+    private static final String keyAssertionMessage = "key must not be null";
     private Node<K, V>[] buckets = (Node<K, V>[]) new Node[16]; // power-of-two
     private int size = 0;
 
@@ -48,31 +49,89 @@ class ChainingHashMap<K, V> implements SimpleMap<K, V> {
         // String과 같은 object는 "==" 연산자를 사용할 시 어디로 reference되는지를 비교하기 때문에 값을 비교할 때 이
         // method를 사용해야 합니다.
 
+        Objects.requireNonNull(key, keyAssertionMessage);
+        int bucketIdx = hash(key) % this.buckets.length;
+        Node<K, V> bucket = this.buckets[bucketIdx];
+        // 버킷 찾았고
+
+        while (bucket != null) {
+            if (bucket.data.key.equals(key)) {
+                bucket.data.value = value;
+                return;
+            }
+
+            bucket = bucket.next;
+        }
+        // 버킷에 해당 키가 없으면
+
+        this.buckets[bucketIdx] = new Node<>(new Pair<>(key, value), this.buckets[bucketIdx]);
+        this.size++;
+        ensureLoadFactor();
     }
 
     @Override
     public V get(K key) {
+        Objects.requireNonNull(key, keyAssertionMessage);
+        int bucketIdx = hash(key) % this.buckets.length;
+        Node<K, V> currBucket = this.buckets[bucketIdx];
 
+        while (currBucket != null) {
+            if (currBucket.data.key.equals(key))
+                return currBucket.data.value;
+            currBucket = currBucket.next;
+        }
+
+        return null;
     }
 
     @Override
     public boolean containsKey(K key) {
+        Objects.requireNonNull(key, keyAssertionMessage);
+        int bucketIdx = hash(key) % this.buckets.length;
+        Node<K, V> currBucket = this.buckets[bucketIdx];
 
+        while (currBucket != null) {
+            if (currBucket.data.key.equals(key))
+                return true;
+            currBucket = currBucket.next;
+        }
+
+        return false;
     }
 
     @Override
     public V remove(K key) {
+        Objects.requireNonNull(key, keyAssertionMessage);
+        int bucketIdx = hash(key) % this.buckets.length;
+        Node<K, V> curr = this.buckets[bucketIdx];
+        Node<K, V> prev = null;
 
+        while (curr != null) {
+            if (curr.data.key.equals(key)) {
+                // 지울 게 첫 노드면
+                if (prev == null) {
+                    this.buckets[bucketIdx] = curr.next;
+                } else {
+                    prev.next = curr.next;
+                }
+                this.size--;
+                return curr.data.value;
+            }
+            prev = curr;
+            curr = curr.next;
+        }
+
+        return null;
     }
 
     @Override
     public int size() {
-
+        return this.size;
     }
 
     // hash함수 구현:
     private int hash(K key) {
-
+        return key.hashCode();
     }
 
     /* ---------- helper 함수 ---------- */
